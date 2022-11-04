@@ -1,7 +1,7 @@
 	#include <xc.inc>
 
 psect	code, abs
-	; THIS IS A TEST FOR GITHUB
+	; THIS IS A TEST FROM MY LAPTOP TO TEST GITHUB PUSHES
 main:
 	org	0x0
 	goto	start
