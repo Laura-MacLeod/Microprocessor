@@ -8,23 +8,22 @@ main:
 
 	org	0x100		    ; Main code starts here at address 0x100
 start:
+	movlw	0x0e
+	movwf	PORTE, A	    ; Set value to PORTE
+	
 	movlw	0xff
-	movwf	TRISC, A	    ; Port D all inputs
+	movwf	0x02	    ; Counter of 0xff at position 0x02
 	
-	movlw 	0x0
-	movwf	TRISD, A	    ; Port C all outputs
+	movlw	0xff
+	movwf	PORTD		; Set clock pulse PORTD to 0xff
 	
-	bra 	test
-loop:
-    
-	movff 	0x06, PORTD
-	incf 	0x06, W, A
-test:
-    
-	movwf	0x06, A	    ; Test for end of loop condition
-	movf	PORTC, W    ; Assigns value of port C to W
-	cpfsgt 	0x06, A	    ; Compares against W
-	bra 	loop		    ; Not yet finished goto start of loop again
-	goto 	0x0		    ; Re-run program from start
-
+	bra	delay
+	
+	
+delay:
+	
+	
+	
+	
+	
 	end	main
