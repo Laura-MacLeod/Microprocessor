@@ -45,6 +45,8 @@ loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	movlw	myTable_l	; output message to UART
 	lfsr	2, myArray
 	call	UART_Transmit_Message
+	
+	call	delay
 
 	goto	$		; goto current line in code
 
