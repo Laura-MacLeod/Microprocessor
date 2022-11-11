@@ -12,10 +12,19 @@ myArray:    ds 0x80 ; reserve 128 bytes for message data
 
 psect	data    
 	; ******* myTable, data in programme memory, and its length *****
+;myTable:
+;	db	'H','e','l','l','o',' ','W','o','r','l','d','!',0x0a
+;					; message, plus carriage return
+;	myTable_l   EQU	13	; length of data
+;	align	2
+	
+	
 myTable:
-	db	'H','e','l','l','o',' ','W','o','r','l','d','!',0x0a
+	db	'W','e',' ','a','r','e',' ','i','n',' ','l','a','b','s',0x0a
+	db	' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',0x0a
+	db	'I',' ','a','m',' ','t','i','r','e','d',0x0a
 					; message, plus carriage return
-	myTable_l   EQU	13	; length of data
+	myTable_l   EQU	53	; length of data
 	align	2
     
 psect	code, abs	
@@ -39,6 +48,17 @@ start: 	lfsr	0, myArray	; Load FSR0 with address in RAM
 	movwf	TBLPTRL, A		; load low byte to TBLPTRL
 	movlw	myTable_l	; bytes to read
 	movwf 	counter, A		; our counter register
+	
+	; Second table load to data memory:
+	;movlw	low highword(mySecondTable)	; address of data in PM
+	;movwf	TBLPTRU, A		; load upper bits to TBLPTRU
+	;movlw	high(mySecondTable)	; address of data in PM
+	;movwf	TBLPTRH, A		; load high byte to TBLPTRH
+	;movlw	low(mySecondTable)	; address of data in PM
+	;movwf	TBLPTRL, A		; load low byte to TBLPTRL
+	;movlw	mySecondTable_l	; bytes to read
+	;movwf 	counter, A		; our counter register
+	
 loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
 	decfsz	counter, A		; count down to zero
