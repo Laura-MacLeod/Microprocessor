@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup, LCD_Write_Message
+global  LCD_Setup, LCD_Write_Message, clear
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -138,15 +138,14 @@ clear:
 	movlw	0xff
 	movwf	TRISF		;set PORTF TO INPUTS
 	
-	movlw	0x01
+	movlw	00000001
 	movwf	button, A	; Sets the 00000001 as the  value that clears LCD
 	
 	movf	PORTF, W
 	cpfseq	button		; If first button of PORTF pressed, skip next line
-	return
+	bra	clear
 	bra	displayclear
-	
-	return
+
 
 displayclear:
 	movlw	00000001B	; display clear
