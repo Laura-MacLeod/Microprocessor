@@ -143,9 +143,15 @@ clear:
 	
 	movf	PORTF, W
 	cpfseq	button		; If first button of PORTF pressed, skip next line
-	bra	clear
+	return
+	bra	displayclear
+	
+	return
+
+displayclear:
 	movlw	00000001B	; display clear
 	call	LCD_Send_Byte_I
+	return
 	
 
     end
