@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  LCD_Setup, LCD_Write_Message
+global  LCD_Setup, LCD_Write_Message, clear
 
 psect	udata_acs   ; named variables in access ram
 LCD_cnt_l:	ds 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -8,6 +8,7 @@ LCD_cnt_h:	ds 1   ; reserve 1 byte for variable LCD_cnt_h
 LCD_cnt_ms:	ds 1   ; reserve 1 byte for ms counter
 LCD_tmp:	ds 1   ; reserve 1 byte for temporary use
 LCD_counter:	ds 1   ; reserve 1 byte for counting through nessage
+button:		ds 1   ; reserve one byte for button to control clear LCD
 
 	LCD_E	EQU 5	; LCD enable bit
     	LCD_RS	EQU 4	; LCD register select bit
@@ -132,6 +133,25 @@ lcdlp1:	decf 	LCD_cnt_l, F, A	; no carry when 0x00 -> 0xff
 	bc 	lcdlp1		; carry, then loop again
 	return			; carry reset so return
 
+	
+clear:
+	movlw	0xff
+	movwf	TRISF		;set PORTF TO INPUTS
+	
+	movlw	00000001
+	movwf	button, A	; Sets the 00000001 as the  value that clears LCD
+	
+	movf	PORTF, W
+	cpfseq	button		; If first button of PORTF pressed, skip next line
+	bra	clear
+	bra	displayclear
+
+
+displayclear:
+	movlw	00000001B	; display clear
+	call	LCD_Send_Byte_I
+	return
+	
 
     end
 
