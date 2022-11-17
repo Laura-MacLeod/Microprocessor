@@ -1,10 +1,11 @@
 #include <xc.inc>
     
-global  keypad_setup, keypad_read_row, keypad_read_column
+global  keypad_setup, keypad_read_row, keypad_read_column, combine, interpret
 
 psect	udata_acs   ; reserve data space in access ram
 row:	    ds    1	    ; reserve 1 byte for variable UART_counter
 column:	    ds    1
+value:	    ds	  1
 rowvals:    ds	  1
 columnvals: ds	  1
     
@@ -47,106 +48,117 @@ keypad_read_column:
 	movff   column, columnvals  ;Stores value at column
 	return			    ;Doesn't store value
     
+ combine:
+	movf	column, W
+	iorwf	row, W		    ;Combines columns with rows and move to W
+	movwf	value
+	return
+	
+	
+interpret:
+	movlw	0xff		    ;NO BUTTON PRESSED
+	cpfseq	value		    
+	bra	next1
+	retlw	0x00		    ;RETURN NULL
 
-	
-interpret:	; CURRENTLY WRONG, GOT CPFSEQ THE WRONG WAY AROUND
-	
-	movlw	01110000	; 4th row
-	cpfseq	row
-	bra	row4
-    
-	movlw	10110000	; 3rd row
-	cpfseq	row
-	bra	row3
-	
-	movlw	11010000	; 2nd row
-	cpfseq	row
-	bra	row2
-	
-	movlw	01110000	; 1st row
-	cpfseq	row
-	bra	row1
-	
-	retlw	0x00		; RETURN NULL
-    
-row1:
-    
-	movlw	00000111	; 4th column
-	cpfseq	column
-	;letter F
-	 retlw	
-    
-	movlw	00001011	; 3rd column
-	cpfseq	column
-	;letter 3
-	
-	movlw	00001101	; 2nd column
-	cpfseq	column
-	;letter 2
-	
-	movlw	00001110	; 1st column
-	cpfseq	column
-	;letter 1
-	
+next1:
+	movlw	01110111	    ;ROW 4 COLUMN 4 PRESSED
+	cpfseq	value		    
+	bra	next2
+	retlw	'c'		    ;RETURN 'C'
+
+next2:
+	movlw	10110111	    ;ROW 3 COLUMN 4 PRESSED
+	cpfseq	value		    
+	bra	next3
+	retlw	'd'		    ;RETURN 'D'
+
+next3:
+	movlw	01111011	    ;ROW 4 COLUMN 3 PRESSED
+	cpfseq	value		    
+	bra	next4
+	retlw	'b'		    ;RETURN 'B'
+
+next4:
+	movlw	11010111	    ;ROW 2 COLUMN 4 PRESSED
+	cpfseq	value		    
+	bra	next5
+	retlw	'e'		    ;RETURN 'E'
+
+next5:
+	movlw	01111101	    ;ROW 4 COLUMN 2 PRESSED
+	cpfseq	value		    
+	bra	next6
+	retlw	'0'		    ;RETURN '0'
+
+next6:
+	movlw	10111011	    ;ROW 3 COLUMN 3 PRESSED
+	cpfseq	value		    
+	bra	next7
+	retlw	'9'		    ;RETURN '9'
+
+next7:
+	movlw	10111101	    ;ROW 3 COLUMN 2 PRESSED
+	cpfseq	value		    
+	bra	next8
+	retlw	'8'		    ;RETURN '8'
+
+next8:
+	movlw	11011011	    ;ROW 2 COLUMN 3 PRESSED
+	cpfseq	value		    
+	bra	next9
+	retlw	'6'		    ;RETURN '6'
+
+next9:
+	movlw	01111110	    ;ROW 4 COLUMN 1 PRESSED
+	cpfseq	value		    
+	bra	next10
+	retlw	'a'		    ;RETURN 'A'
+
+next10:
+	movlw	11100111	    ;ROW 1 COLUMN 4 PRESSED
+	cpfseq	value		    
+	bra	next11
+	retlw	'f'		    ;RETURN 'F'
+
+next11:
+	movlw	11011101	    ;ROW 2 COLUMN 2 PRESSED
+	cpfseq	value		    
+	bra	next12
+	retlw	'5'		    ;RETURN '5'
+
+next12:
+	movlw	10111110	    ;ROW 3 COLUMN 1 PRESSED
+	cpfseq	value		    
+	bra	next13
+	retlw	'7'		    ;RETURN '7'
+
+next13:
+	movlw	11101011	    ;ROW 1 COLUMN 3 PRESSED
+	cpfseq	value		    
+	bra	next14
+	retlw	'3'		    ;RETURN '3'
+
+next14:
+	movlw	11101101	    ;ROW 1 COLUMN 2 PRESSED
+	cpfseq	value		    
+	bra	next15
+	retlw	'2'		    ;RETURN '2'
+
+next15:
+	movlw	11011110	    ;ROW 2 COLUMN 1 PRESSED
+	cpfseq	value		    
+	bra	next16
+	retlw	'4'		    ;RETURN '4'
+
+next16:
+	movlw	11101110	    ;ROW 1 COLUMN 1 PRESSED
+	cpfseq	value		    
+	bra	errorfunc
+	retlw	'1'		    ;RETURN '1'
+
+errorfunc:
+	retlw	0xff		    ;ERROR
 	return
     
-row2:
-    
-	movlw	00000111	; 4th column
-	cpfseq	column
-	;letter E
-    
-	movlw	00001011	; 3rd column
-	cpfseq	column
-	;letter 6
-	
-	movlw	00001101	; 2nd column
-	cpfseq	column
-	;letter 5
-	
-	movlw	00001110	; 1st column
-	cpfseq	column
-	;letter 4
-	
-	return
-    
-row3:
-    
-	movlw	00000111	; 4th column
-	cpfseq	column
-	;letter D
-    
-	movlw	00001011	; 3rd column
-	cpfseq	column
-	;letter 9
-	
-	movlw	00001101	; 2nd column
-	cpfseq	column
-	;letter 8
-	
-	movlw	00001110	; 1st column
-	cpfseq	column
-	;letter 7
-	
-	return
-    
-row4:
-    
-	movlw	00000111	; 4th column
-	cpfseq	column
-	;letter C
-    
-	movlw	00001011	; 3rd column
-	cpfseq	column
-	;letter B
-	
-	movlw	00001101	; 2nd column
-	cpfseq	column
-	;letter 0
-	
-	movlw	00001110	; 1st column
-	cpfseq	column
-	;letter A
-	
-	return
     
