@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  ADC_Setup, ADC_Read    
+global  ADC_Setup, ADC_Read, convert    
 
 psect udata_acs   ; named variables in access ram
 RES0:	ds 1
@@ -12,6 +12,8 @@ ARG2L:	ds 1
 ARG1H:	ds 1
 ARG2H:	ds 1
 k:	ds 1
+hexhigher:  ds 1
+hexlower:   ds 1
     
 psect	adc_code, class=CODE
         
@@ -44,8 +46,8 @@ convert:
 	MOVLW	0X8A		
 	MOVWF	ARG1H		    ; K LOWER
 	
-	MOVFF	hexhigher, ARG2H    ;move upper hex value
-	MOVFF	hexlower, ARG2L	    ;move upper hex value
+	MOVFF	ADRESH, ARG2H	    ;move upper hex value
+	MOVFF	ADRESL, ARG2L	    ;move lower hex value
 	
 	bra	multiply
 	
@@ -82,9 +84,13 @@ multiply:
 	ADDWFC RES2, F ;
 	CLRF WREG ;
 	ADDWFC RES3, F ;
+	
+	MOVF	RES3, W, A
+	
+	return
 
 
-significant:
+;significant:		    ; most significant byte stored in RES3
 	
 	
 
