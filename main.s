@@ -54,13 +54,17 @@ loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 				; don't send the final carriage return to LCD
 	lfsr	2, myArray
 	call	LCD_Write_Message
-	
+	nop
 measure_loop:
 	call	ADC_Read
+	
+	;CONVERT TO DECIMAL HERE
+	
 	movf	ADRESH, W, A
 	call	LCD_Write_Hex
 	movf	ADRESL, W, A
 	call	LCD_Write_Hex
+	
 	goto	measure_loop		; goto current line in code
 	
 	; a delay subroutine if you need one, times around loop in delay_count
