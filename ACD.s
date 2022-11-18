@@ -1,9 +1,22 @@
 #include <xc.inc>
 
-global  ADC_Setup, ADC_Read    
+global  ADC_Setup, ADC_Read, convert    
+
+psect udata_acs   ; named variables in access ram
+RES0:	ds 1
+RES1:	ds 1
+RES2:	ds 1
+RES3:	ds 1
+ARG1L:	ds 1
+ARG2L:	ds 1
+ARG1H:	ds 1
+ARG2H:	ds 1
+k:	ds 1
+hexhigher:  ds 1
+hexlower:   ds 1
     
 psect	adc_code, class=CODE
-    
+        
 ADC_Setup:
 	bsf	TRISA, PORTA_RA0_POSN, A  ; pin RA0==AN0 input
 	movlb	0x0f
@@ -24,4 +37,65 @@ adc_loop:
 	bra	adc_loop
 	return
 
+	
+	
+convert:
+	
+	MOVLW	0X41		
+	MOVWF	ARG1H		    ; K HIGHER
+	MOVLW	0X8A		
+	MOVWF	ARG1H		    ; K LOWER
+	
+	MOVFF	ADRESH, ARG2H	    ;move upper hex value
+	MOVFF	ADRESL, ARG2L	    ;move lower hex value
+	
+	bra	multiply
+	
+multiply:
+    
+	MOVF ARG1L, W
+	MULWF ARG2L ; ARG1L * ARG2L->
+	; PRODH:PRODL
+	MOVFF PRODH, RES1 ;
+	MOVFF PRODL, RES0 ;
+	;
+	MOVF ARG1H, W
+	MULWF ARG2H ; ARG1H * ARG2H->
+	; PRODH:PRODL
+	MOVFF PRODH, RES3 ;
+	MOVFF PRODL, RES2 ;
+	;
+	MOVF ARG1L, W
+	MULWF ARG2H ; ARG1L * ARG2H->
+	; PRODH:PRODL
+	MOVF PRODL, W ;
+	ADDWF RES1, F ; Add cross
+	MOVF PRODH, W ; products
+	ADDWFC RES2, F ;
+	CLRF WREG ;
+	ADDWFC RES3, F ;
+	;
+	MOVF ARG1H, W ;
+	MULWF ARG2L ; ARG1H * ARG2L->
+	; PRODH:PRODL
+	MOVF PRODL, W ;
+	ADDWF RES1, F ; Add cross
+	MOVF PRODH, W ; products
+	ADDWFC RES2, F ;
+	CLRF WREG ;
+	ADDWFC RES3, F ;
+	
+	MOVF	RES3, W, A
+	
+	return
+
+
+;significant:		    ; most significant byte stored in RES3
+	
+	
+
+
+
+
+	
 end
