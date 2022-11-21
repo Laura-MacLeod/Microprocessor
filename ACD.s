@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  ADC_Setup, ADC_Read, convert    
+global  ADC_Setup, ADC_Read, convert, multiply16x16, multiply8x24    
 
 psect udata_acs   ; named variables in access ram
 RES0:	    ds 1
@@ -9,16 +9,17 @@ RES2:	    ds 1
 RES3:	    ds 1
 ARG1L:	    ds 1
 ARG1H:	    ds 1
+ARG2LL:	    ds 1
 ARG2L:	    ds 1
 ARG2H:	    ds 1
 ARG2HH:	    ds 1
 k:	    ds 1
 hexhigher:  ds 1
 hexlower:   ds 1
-dec1:	    ds 1
-dec2:	    ds 1
-dec3:	    ds 1
-dec4:	    ds 1
+DEC1:	    ds 1
+DEC2:	    ds 1
+DEC3:	    ds 1
+DEC4:	    ds 1
 
     
 psect	adc_code, class=CODE
@@ -142,7 +143,7 @@ multiply16x16:
 	ADDWFC RES3, F ;
 	
 	MOVF	RES3, W, A
-	MOVFF	RES3, 
+
 	
 	return
 
@@ -180,8 +181,13 @@ multiply8x24:
 
 	
 ASCII:
-	
+	MOVLW	0X30		;adding 48 in decimal
+	ADDWF	DEC1
+	ADDWF	DEC2
+	ADDWF	DEC3
+	ADDWF	DEC4
 
+	return
 
 
 
