@@ -65,6 +65,7 @@ measure_loop:
 	
 	;CONVERT TO DECIMAL HERE
 	
+	
 	movf	ADRESH, W, A
 	call	LCD_Write_Hex
 	movf	ADRESL, W, A
