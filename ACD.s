@@ -3,17 +3,23 @@
 global  ADC_Setup, ADC_Read, convert    
 
 psect udata_acs   ; named variables in access ram
-RES0:	ds 1
-RES1:	ds 1
-RES2:	ds 1
-RES3:	ds 1
-ARG1L:	ds 1
-ARG2L:	ds 1
-ARG1H:	ds 1
-ARG2H:	ds 1
-k:	ds 1
+RES0:	    ds 1
+RES1:	    ds 1
+RES2:	    ds 1
+RES3:	    ds 1
+ARG1L:	    ds 1
+ARG1H:	    ds 1
+ARG2L:	    ds 1
+ARG2H:	    ds 1
+ARG2HH:	    ds 1
+k:	    ds 1
 hexhigher:  ds 1
 hexlower:   ds 1
+dec1:	    ds 1
+dec2:	    ds 1
+dec3:	    ds 1
+dec4:	    ds 1
+
     
 psect	adc_code, class=CODE
         
@@ -44,14 +50,64 @@ convert:
 	MOVLW	0X41		
 	MOVWF	ARG1H		    ; K HIGHER
 	MOVLW	0X8A		
-	MOVWF	ARG1H		    ; K LOWER
+	MOVWF	ARG1L		    ; K LOWER
 	
 	MOVFF	ADRESH, ARG2H	    ;move upper hex value
 	MOVFF	ADRESL, ARG2L	    ;move lower hex value
 	
-	bra	multiply
+	call	multiply16x16
 	
-multiply:
+	
+convert2:
+	
+	MOVFF	RES3, DEC1	    ;move most significant bit to storage
+    
+	MOVLW	0X0A		
+	MOVWF	ARG1L		    ; 10 LOWER
+	
+	MOVFF	RES3, ARG2HH	    ;move upper upper hex value (most significant)
+	MOVFF	RES2, ARG2H	    ;move upper hex value
+	MOVFF	RES1, ARG2L	    ;move lower hex value
+	MOVFF	RES0, ARG2LL	    ;move lower lower hex value
+	
+	call	multiply8x24	    
+	
+
+convert3:
+	
+	MOVFF	RES3, DEC2	    ;move most significant bit to storage
+    
+	MOVLW	0X0A		
+	MOVWF	ARG1L		    ; 10 LOWER
+	
+	MOVFF	RES3, ARG2HH	    ;move upper upper hex value (most significant)
+	MOVFF	RES2, ARG2H	    ;move upper hex value
+	MOVFF	RES1, ARG2L	    ;move lower hex value
+	MOVFF	RES0, ARG2LL	    ;move lower lower hex value
+	
+	call	multiply8x24
+	
+	
+convert4:
+	
+	MOVFF	RES3, DEC3	    ;move most significant bit to storage
+    
+	MOVLW	0X0A		
+	MOVWF	ARG1L		    ; 10 LOWER
+	
+	MOVFF	RES3, ARG2HH	    ;move upper upper hex value (most significant)
+	MOVFF	RES2, ARG2H	    ;move upper hex value
+	MOVFF	RES1, ARG2L	    ;move lower hex value
+	MOVFF	RES0, ARG2LL	    ;move lower lower hex value
+	
+	call	multiply8x24
+	
+	
+	MOVFF	RES3, DEC4	    ;move most significant bit to storage
+	
+
+	
+multiply16x16:
     
 	MOVF ARG1L, W
 	MULWF ARG2L ; ARG1L * ARG2L->
@@ -86,12 +142,44 @@ multiply:
 	ADDWFC RES3, F ;
 	
 	MOVF	RES3, W, A
+	MOVFF	RES3, 
+	
+	return
+
+	
+	
+multiply8x24:
+    
+	MOVF ARG1L, W
+	MULWF ARG2LL ; ARG1L * ARG2L->
+	; PRODH:PRODL
+	MOVFF PRODH, RES1 ;
+	MOVFF PRODL, RES0 ;
+	;
+	MOVF ARG1L, W
+	MULWF ARG2H ; ARG1H * ARG2H->
+	; PRODH:PRODL
+	MOVFF PRODH, RES3 ;
+	MOVFF PRODL, RES2 ;
+	;
+	MOVF ARG1L, W
+	MULWF ARG2L ; ARG1L * ARG2H->
+	; PRODH:PRODL
+	MOVF PRODL, W ;
+	ADDWF RES1, F ; Add cross
+	MOVF PRODH, W ; products
+	ADDWFC RES2, F ;
+	CLRF WREG ;
+	ADDWFC RES3, F ;
+	;
+
+	MOVF	RES3, W, A
 	
 	return
 
 
-;significant:		    ; most significant byte stored in RES3
 	
+ASCII:
 	
 
 
