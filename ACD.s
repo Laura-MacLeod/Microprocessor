@@ -1,6 +1,7 @@
 #include <xc.inc>
 
-global  ADC_Setup, ADC_Read, convert, multiply16x16, multiply8x24    
+global  ADC_Setup, ADC_Read, convert, multiply16x16, multiply8x24, ASCII
+global	DEC1, DEC2, DEC3, DEC4 
 
 psect udata_acs   ; named variables in access ram
 RES0:	    ds 1
@@ -54,7 +55,9 @@ convert:
 	MOVWF	ARG1L		    ; K LOWER
 	
 	MOVFF	ADRESH, ARG2H	    ;move upper hex value
+	MOVF	ADRESH, W
 	MOVFF	ADRESL, ARG2L	    ;move lower hex value
+	MOVF	ADRESL, W
 	
 	call	multiply16x16
 	
@@ -106,6 +109,7 @@ convert4:
 	
 	MOVFF	RES3, DEC4	    ;move most significant bit to storage
 	
+	return
 
 	
 multiply16x16:
