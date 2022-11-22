@@ -1,9 +1,10 @@
 #include <xc.inc>
 
 extrn	UART_Setup, UART_Transmit_Message  ; external uart subroutines
-extrn	LCD_Setup, LCD_Write_Message, LCD_Write_Hex ; external LCD subroutines
-extrn	ADC_Setup, ADC_Read, convert		   ; external ADC subroutines
-	
+extrn	LCD_Setup, LCD_Write_Message, LCD_Write_Hex, lcd_clear, LCD_Send_Byte_D  ; external LCD subroutines
+extrn	ADC_Setup, ADC_Read, convert, multiply16x16, multiply8x24, ASCII   
+extrn	DEC1, DEC2, DEC3, DEC4,LCD_Send_Byte_I	   ; external ADC subroutines
+    
 psect	udata_acs   ; reserve data space in access ram
 counter:    ds 1    ; reserve one byte for a counter variable
 delay_count:ds 1    ; reserve one byte for counter in the delay routine
@@ -11,6 +12,7 @@ RES0:	ds 1
 RES1:	ds 1
 RES2:	ds 1
 RES3:	ds 1
+
     
 psect	udata_bank4 ; reserve data anywhere in RAM (here at 0x400)
 myArray:    ds 0x80 ; reserve 128 bytes for message data
@@ -62,14 +64,27 @@ loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 measure_loop:
 	call	ADC_Read
 	call	convert
-	
+	call	ASCII
 	;CONVERT TO DECIMAL HERE
+	nop
+	call	LCD_Setup		    ;clear lcd
+	nop
+	movf	DEC1, W, A
+	call	LCD_Send_Byte_D
 	
-	movf	ADRESH, W, A
-	call	LCD_Write_Hex
-	movf	ADRESL, W, A
-	call	LCD_Write_Hex
+	movlw	0x2e
+	call	LCD_Send_Byte_D
+	nop
+	movf	DEC2, W, A
+	call	LCD_Send_Byte_D
+	nop
+	movf	DEC3, W, A
+	call	LCD_Send_Byte_D
+	movf	DEC4, W, A
+	call	LCD_Send_Byte_D
 	
+	movlw	0x56
+	call	LCD_Send_Byte_D
 	NOP
 
 	MOVF	RES3, W, A
